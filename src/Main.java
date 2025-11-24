@@ -1,15 +1,24 @@
 public class Main {
     public static void main(String[] args) {
-        Graph<Character> g = new Graph<>();
+        Graph<Character> undirected = new Graph<>(false);
 
-        g.addEdge('A', 'B', 4);
-        g.addEdge('A', 'C', 2);
-        g.addEdge('B', 'D', 5);
-        g.addEdge('C', 'D', 1);
-        g.addEdge('D', 'E');
+        undirected.addEdge('A', 'B', 5);
+        undirected.addEdge('A', 'C', 10);
+        undirected.addEdge('B', 'D', 15);
+        undirected.print();
 
-        g.print();
+        System.out.println();
 
-        System.out.println("\nСоседи вершины A: " + g.getAdjacent('A'));
+        Graph<Character> directed = new Graph<>(true);
+        directed.addEdge('A', 'B', 5);
+        directed.addEdge('B', 'C', 10);
+        directed.addEdge('C', 'A', 15);
+        directed.addEdge('B', 'D', 20);
+        directed.print();
+
+
+
+        System.out.println("\nСоседи вершины A: " + directed.getAdjacent('A'));
+        System.out.println("\nСоседи вершины A: " + undirected.getAdjacent('A'));
     }
 }

@@ -3,6 +3,11 @@ import java.util.ArrayList;
 public class Graph<V> {
     private final ArrayList<V> vertices = new ArrayList<>();
     private final ArrayList<ArrayList<Edge<V>>> adj = new ArrayList<>();
+    private final boolean directed;
+
+    public Graph(boolean directed) {
+        this.directed = directed;
+    }
 
     public void addVertex(V v) {
         if (!vertices.contains(v)) {
@@ -16,10 +21,12 @@ public class Graph<V> {
         addVertex(to);
 
         int i = vertices.indexOf(from);
-        int j = vertices.indexOf(to);
-
         adj.get(i).add(new Edge<>(to, weight));
-        adj.get(j).add(new Edge<>(from, weight));
+
+        if (!directed) {
+            int j = vertices.indexOf(to);
+            adj.get(j).add(new Edge<>(from, weight));
+        }
     }
 
     public void addEdge(V from, V to) {
@@ -32,8 +39,7 @@ public class Graph<V> {
         if (index == -1) {
             return result;
         }
-        ArrayList<Edge<V>> edges = adj.get(index);
-        for (Edge<V> edge : edges) {
+        for (Edge<V> edge : adj.get(index)) {
             result.add(edge.to);
         }
         return result;
