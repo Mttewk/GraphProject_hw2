@@ -1,8 +1,6 @@
-import java.util.*;
-
 public class Graph<V> {
-    private final ArrayList<V> vertices = new ArrayList<>();
-    private final ArrayList<ArrayList<Edge<V>>> adj = new ArrayList<>();
+    private final MyArrayList<V> vertices = new MyArrayList<>();
+    private final MyArrayList<MyArrayList<Edge<V>>> adj = new MyArrayList<>();
     private final boolean directed;
 
     public Graph(boolean directed) {
@@ -10,9 +8,9 @@ public class Graph<V> {
     }
 
     public void addVertex(V v) {
-        if (!vertices.contains(v)) {
+        if (!contains(vertices, v)) {
             vertices.add(v);
-            adj.add(new ArrayList<>());
+            adj.add(new MyArrayList<>());
         }
     }
 
@@ -20,11 +18,11 @@ public class Graph<V> {
         addVertex(from);
         addVertex(to);
 
-        int i = vertices.indexOf(from);
+        int i = indexOf(vertices, from);
         adj.get(i).add(new Edge<>(to, weight));
 
         if (!directed) {
-            int j = vertices.indexOf(to);
+            int j = indexOf(vertices, to);
             adj.get(j).add(new Edge<>(from, weight));
         }
     }
@@ -33,77 +31,120 @@ public class Graph<V> {
         addEdge(from, to, 1);
     }
 
-    public ArrayList<V> getAdjacent(V v) {
-        ArrayList<V> result = new ArrayList<>();
-        int index = vertices.indexOf(v);
-        if (index == -1) {
-            return result;
-        }
-        for (Edge<V> edge : adj.get(index)) {
-            result.add(edge.to);
+    public MyArrayList<V> getAdjacent(V v) {
+        MyArrayList<V> result = new MyArrayList<>();
+        int index = indexOf(vertices, v);
+        if (index == -1) return result;
+
+        MyArrayList<Edge<V>> edges = adj.get(index);
+        for (int i = 0; i < edges.size(); i++) {
+            result.add(edges.get(i).to);
         }
         return result;
     }
 
-    public void print() {
-        for (int i = 0; i < vertices.size(); i++) {
-            System.out.println(vertices.get(i) + " -> " + adj.get(i));
+    public void removeEdge(V from, V to) {
+        int i = indexOf(vertices, from);
+        if (i != -1) {
+            MyArrayList<Edge<V>> list = adj.get(i);
+            for (int j = list.size() - 1; j >= 0; j--) {
+                if (to.equals(list.get(j).to)) {
+                    list.removeAt(j);
+                }
+            }
+        }
+        if (!directed) {
+            int j = indexOf(vertices, to);
+            if (j != -1) {
+                MyArrayList<Edge<V>> list = adj.get(j);
+                for (int k = list.size() - 1; k >= 0; k--) {
+                    if (from.equals(list.get(k).to)) {
+                        list.removeAt(k);
+                    }
+                }
+            }
+        }
+    }
+
+    public void removeVertex(V v) {
+        int index = indexOf(vertices, v);
+        if (index == -1) return;
+
+        vertices.removeAt(index);
+        adj.removeAt(index);
+
+        // Удаляем все входящие рёбра
+        for (int i = 0; i < adj.size(); i++) {
+            MyArrayList<Edge<V>> list = adj.get(i);
+            for (int j = list.size() - 1; j >= 0; j--) {
+                if (v.equals(list.get(j).to)) {
+                    list.removeAt(j);
+                }
+            }
         }
     }
 
     public void dfs(V start) {
-        if (!vertices.contains(start)) {
-            System.out.println("Вершины " + start + " нет в графе");
+        if (indexOf(vertices, start) == -1) {
+            System.out.println("Вершина не существует");
             return;
         }
-
-        Set<V> visited = new HashSet<>();
-        System.out.print("DFS от " + start + ": ");
+        java.util.Set<V> visited = new java.util.HashSet<>();
+        System.out.print("DFS: ");
         dfsHelper(start, visited);
         System.out.println();
     }
 
-    private void dfsHelper(V v, Set<V> visited) {
+    private void dfsHelper(V v, java.util.Set<V> visited) {
         visited.add(v);
         System.out.print(v + " ");
-
-        int index = vertices.indexOf(v);
-        for (Edge<V> edge : adj.get(index)) {
-            V neighbor = edge.to;
-            if (!visited.contains(neighbor)) {
-                dfsHelper(neighbor, visited);
+        int i = indexOf(vertices, v);
+        MyArrayList<Edge<V>> edges = adj.get(i);
+        for (int j = 0; j < edges.size(); j++) {
+            V to = edges.get(j).to;
+            if (!visited.contains(to)) {
+                dfsHelper(to, visited);
             }
         }
     }
 
-
     public void bfs(V start) {
-        if (!vertices.contains(start)) {
-            System.out.println("Вершина " + start + " не существует!");
-            return;
-        }
-
-        Set<V> visited = new HashSet<>();
-        Queue<V> queue = new LinkedList<>();
-
+        if (indexOf(vertices, start) == -1) return;
+        java.util.Set<V> visited = new java.util.HashSet<>();
+        java.util.Queue<V> queue = new java.util.LinkedList<>();
         queue.add(start);
         visited.add(start);
-
-        System.out.print("BFS от " + start + ": ");
-
+        System.out.print("BFS: ");
         while (!queue.isEmpty()) {
-            V current = queue.poll();
-            System.out.print(current + " ");
-
-            int index = vertices.indexOf(current);
-            for (Edge<V> edge : adj.get(index)) {
-                V neighbor = edge.to;
-                if (!visited.contains(neighbor)) {
-                    visited.add(neighbor);
-                    queue.add(neighbor);
+            V v = queue.poll();
+            System.out.print(v + " ");
+            int i = indexOf(vertices, v);
+            MyArrayList<Edge<V>> edges = adj.get(i);
+            for (int j = 0; j < edges.size(); j++) {
+                V to = edges.get(j).to;
+                if (!visited.contains(to)) {
+                    visited.add(to);
+                    queue.add(to);
                 }
             }
         }
         System.out.println();
+    }
+
+    public void print() {
+        for (int i = 0; i < vertices.size(); i++) {
+            System.out.println(vertices.get(i) + " → " + adj.get(i));
+        }
+    }
+
+    private int indexOf(MyArrayList<V> list, V v) {
+        for (int i = 0; i < list.size(); i++) {
+            if (v.equals(list.get(i))) return i;
+        }
+        return -1;
+    }
+
+    private boolean contains(MyArrayList<V> list, V v) {
+        return indexOf(list, v) != -1;
     }
 }
