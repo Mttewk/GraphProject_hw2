@@ -8,6 +8,7 @@ public class Main {
         undirected.print();
 
         undirected.dfs('A');
+        undirected.bfs('A');
 
         System.out.println();
 
@@ -19,6 +20,7 @@ public class Main {
         directed.print();
 
         directed.dfs('A');
+        directed.bfs('A');
 
 
         System.out.println("\nСоседи вершины A: " + directed.getAdjacent('A'));

@@ -75,4 +75,35 @@ public class Graph<V> {
             }
         }
     }
+
+
+    public void bfs(V start) {
+        if (!vertices.contains(start)) {
+            System.out.println("Вершина " + start + " не существует!");
+            return;
+        }
+
+        Set<V> visited = new HashSet<>();
+        Queue<V> queue = new LinkedList<>();
+
+        queue.add(start);
+        visited.add(start);
+
+        System.out.print("BFS от " + start + ": ");
+
+        while (!queue.isEmpty()) {
+            V current = queue.poll();
+            System.out.print(current + " ");
+
+            int index = vertices.indexOf(current);
+            for (Edge<V> edge : adj.get(index)) {
+                V neighbor = edge.to;
+                if (!visited.contains(neighbor)) {
+                    visited.add(neighbor);
+                    queue.add(neighbor);
+                }
+            }
+        }
+        System.out.println();
+    }
 }
