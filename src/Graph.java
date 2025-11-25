@@ -1,3 +1,6 @@
+// Graph.java — с обработкой исключений
+import java.util.NoSuchElementException;
+
 public class Graph<V> {
     private final MyArrayList<V> vertices = new MyArrayList<>();
     private final MyArrayList<MyArrayList<Edge<V>>> adj = new MyArrayList<>();
@@ -8,21 +11,32 @@ public class Graph<V> {
     }
 
     public void addVertex(V v) {
-        if (!contains(vertices, v)) {
-            vertices.add(v);
-            adj.add(new MyArrayList<>());
+        if (v == null) {
+            throw new IllegalArgumentException("Вершина не может быть null");
         }
+        if (contains(vertices, v)) {
+            return; // уже есть — просто молчим
+        }
+        vertices.add(v);
+        adj.add(new MyArrayList<>());
     }
 
     public void addEdge(V from, V to, int weight) {
+        if (from == null || to == null) {
+            throw new IllegalArgumentException("Вершины не могут быть null");
+        }
+        if (weight < 0) {
+            throw new IllegalArgumentException("Вес ребра не может быть отрицательным");
+        }
+
         addVertex(from);
         addVertex(to);
 
         int i = indexOf(vertices, from);
-        adj.get(i).add(new Edge<>(to, weight));
+        int j = indexOf(vertices, to);
 
+        adj.get(i).add(new Edge<>(to, weight));
         if (!directed) {
-            int j = indexOf(vertices, to);
             adj.get(j).add(new Edge<>(from, weight));
         }
     }
@@ -31,49 +45,39 @@ public class Graph<V> {
         addEdge(from, to, 1);
     }
 
-    public MyArrayList<V> getAdjacent(V v) {
-        MyArrayList<V> result = new MyArrayList<>();
-        int index = indexOf(vertices, v);
-        if (index == -1) return result;
-
-        MyArrayList<Edge<V>> edges = adj.get(index);
-        for (int i = 0; i < edges.size(); i++) {
-            result.add(edges.get(i).to);
-        }
-        return result;
-    }
-
     public void removeEdge(V from, V to) {
+        if (from == null || to == null) return;
+
         int i = indexOf(vertices, from);
-        if (i != -1) {
-            MyArrayList<Edge<V>> list = adj.get(i);
-            for (int j = list.size() - 1; j >= 0; j--) {
-                if (to.equals(list.get(j).to)) {
-                    list.removeAt(j);
-                }
+        int j = indexOf(vertices, to);
+        if (i == -1 || j == -1) return; // нет вершины — ничего не делаем
+
+        MyArrayList<Edge<V>> list = adj.get(i);
+        for (int k = list.size() - 1; k >= 0; k--) {
+            if (to.equals(list.get(k).to)) {
+                list.removeAt(k);
             }
         }
         if (!directed) {
-            int j = indexOf(vertices, to);
-            if (j != -1) {
-                MyArrayList<Edge<V>> list = adj.get(j);
-                for (int k = list.size() - 1; k >= 0; k--) {
-                    if (from.equals(list.get(k).to)) {
-                        list.removeAt(k);
-                    }
+            list = adj.get(j);
+            for (int k = list.size() - 1; k >= 0; k--) {
+                if (from.equals(list.get(k).to)) {
+                    list.removeAt(k);
                 }
             }
         }
     }
 
     public void removeVertex(V v) {
+        if (v == null) return;
+
         int index = indexOf(vertices, v);
-        if (index == -1) return;
+        if (index == -1) return; // нет — ничего не делаем
 
         vertices.removeAt(index);
         adj.removeAt(index);
 
-        // Удаляем все входящие рёбра
+        // Удаляем все рёбра к этой вершине
         for (int i = 0; i < adj.size(); i++) {
             MyArrayList<Edge<V>> list = adj.get(i);
             for (int j = list.size() - 1; j >= 0; j--) {
@@ -84,20 +88,37 @@ public class Graph<V> {
         }
     }
 
-    public void dfs(V start) {
-        if (indexOf(vertices, start) == -1) {
-            System.out.println("Вершина " + start + " не существует");
-            return;
-
+    public MyArrayList<V> getAdjacent(V v) {
+        if (v == null) {
+            throw new IllegalArgumentException("Вершина не может быть null");
         }
+        int index = indexOf(vertices, v);
+        if (index == -1) {
+            throw new NoSuchElementException("Вершина не существует: " + v);
+        }
+
+        MyArrayList<V> result = new MyArrayList<>();
+        MyArrayList<Edge<V>> edges = adj.get(index);
+        for (int i = 0; i < edges.size(); i++) {
+            result.add(edges.get(i).to);
+        }
+        return result;
+    }
+
+    public void dfs(V start) {
+        if (start == null) throw new IllegalArgumentException("Стартовая вершина null");
+        if (indexOf(vertices, start) == -1) {
+            throw new NoSuchElementException("Стартовая вершина не существует: " + start);
+        }
+
         java.util.Set<V> visited = new java.util.HashSet<>();
         dfsHelper(start, visited);
-        System.out.println(); // просто перевод строки в конце
+        System.out.println();
     }
 
     private void dfsHelper(V v, java.util.Set<V> visited) {
         visited.add(v);
-        System.out.print(v + " "); // только вершина и пробел
+        System.out.print(v + " ");
 
         int i = indexOf(vertices, v);
         MyArrayList<Edge<V>> edges = adj.get(i);
@@ -110,13 +131,13 @@ public class Graph<V> {
     }
 
     public void bfs(V start) {
+        if (start == null) throw new IllegalArgumentException("Стартовая вершина null");
         if (indexOf(vertices, start) == -1) {
-            System.out.println("Вершина " + start + " не существует");
-            return;
+            throw new NoSuchElementException("Стартовая вершина не существует: " + start);
         }
+
         java.util.Set<V> visited = new java.util.HashSet<>();
         java.util.Queue<V> queue = new java.util.LinkedList<>();
-
         queue.add(start);
         visited.add(start);
 
@@ -143,6 +164,7 @@ public class Graph<V> {
         }
     }
 
+    // Вспомогательные методы
     private int indexOf(MyArrayList<V> list, V v) {
         for (int i = 0; i < list.size(); i++) {
             if (v.equals(list.get(i))) return i;
