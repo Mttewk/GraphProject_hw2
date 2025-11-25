@@ -1,4 +1,3 @@
-// Graph.java — с обработкой исключений
 import java.util.NoSuchElementException;
 
 public class Graph<V> {
@@ -15,7 +14,7 @@ public class Graph<V> {
             throw new IllegalArgumentException("Вершина не может быть null");
         }
         if (contains(vertices, v)) {
-            return; // уже есть — просто молчим
+            return;
         }
         vertices.add(v);
         adj.add(new MyArrayList<>());
@@ -111,12 +110,12 @@ public class Graph<V> {
             throw new NoSuchElementException("Стартовая вершина не существует: " + start);
         }
 
-        java.util.Set<V> visited = new java.util.HashSet<>();
+        MyArrayList<V> visited = new MyArrayList<>();
         dfsHelper(start, visited);
         System.out.println();
     }
 
-    private void dfsHelper(V v, java.util.Set<V> visited) {
+    private void dfsHelper(V v, MyArrayList<V> visited) {
         visited.add(v);
         System.out.print(v + " ");
 
@@ -124,7 +123,7 @@ public class Graph<V> {
         MyArrayList<Edge<V>> edges = adj.get(i);
         for (int j = 0; j < edges.size(); j++) {
             V to = edges.get(j).to;
-            if (!visited.contains(to)) {
+            if (!contains(visited, to)) {
                 dfsHelper(to, visited);
             }
         }
@@ -136,20 +135,20 @@ public class Graph<V> {
             throw new NoSuchElementException("Стартовая вершина не существует: " + start);
         }
 
-        java.util.Set<V> visited = new java.util.HashSet<>();
-        java.util.Queue<V> queue = new java.util.LinkedList<>();
+        MyArrayList<V> visited = new MyArrayList<>();
+        MyArrayList<V> queue = new MyArrayList<>();
         queue.add(start);
         visited.add(start);
 
         while (!queue.isEmpty()) {
-            V v = queue.poll();
+            V v = queue.removeAt(0);
             System.out.print(v + " ");
 
             int i = indexOf(vertices, v);
             MyArrayList<Edge<V>> edges = adj.get(i);
             for (int j = 0; j < edges.size(); j++) {
                 V to = edges.get(j).to;
-                if (!visited.contains(to)) {
+                if (!contains(visited, to)) {
                     visited.add(to);
                     queue.add(to);
                 }
@@ -164,7 +163,6 @@ public class Graph<V> {
         }
     }
 
-    // Вспомогательные методы
     private int indexOf(MyArrayList<V> list, V v) {
         for (int i = 0; i < list.size(); i++) {
             if (v.equals(list.get(i))) return i;

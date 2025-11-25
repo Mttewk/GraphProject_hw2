@@ -74,4 +74,8 @@ public class MyArrayList<E> {
             throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
         }
     }
+
+    public boolean isEmpty() {
+        return size() == 0;
+    }
 }
