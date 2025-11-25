@@ -7,6 +7,8 @@ public class Main {
         undirected.addEdge('B', 'D', 15);
         undirected.print();
 
+        undirected.dfs('A');
+
         System.out.println();
 
         Graph<Character> directed = new Graph<>(true);
@@ -16,6 +18,7 @@ public class Main {
         directed.addEdge('B', 'D', 20);
         directed.print();
 
+        directed.dfs('A');
 
 
         System.out.println("\nСоседи вершины A: " + directed.getAdjacent('A'));

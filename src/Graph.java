@@ -1,4 +1,4 @@
-import java.util.ArrayList;
+import java.util.*;
 
 public class Graph<V> {
     private final ArrayList<V> vertices = new ArrayList<>();
@@ -48,6 +48,31 @@ public class Graph<V> {
     public void print() {
         for (int i = 0; i < vertices.size(); i++) {
             System.out.println(vertices.get(i) + " -> " + adj.get(i));
+        }
+    }
+
+    public void dfs(V start) {
+        if (!vertices.contains(start)) {
+            System.out.println("Вершины " + start + " нет в графе");
+            return;
+        }
+
+        Set<V> visited = new HashSet<>();
+        System.out.print("DFS от " + start + ": ");
+        dfsHelper(start, visited);
+        System.out.println();
+    }
+
+    private void dfsHelper(V v, Set<V> visited) {
+        visited.add(v);
+        System.out.print(v + " ");
+
+        int index = vertices.indexOf(v);
+        for (Edge<V> edge : adj.get(index)) {
+            V neighbor = edge.to;
+            if (!visited.contains(neighbor)) {
+                dfsHelper(neighbor, visited);
+            }
         }
     }
 }
