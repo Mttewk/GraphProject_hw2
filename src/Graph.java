@@ -86,18 +86,19 @@ public class Graph<V> {
 
     public void dfs(V start) {
         if (indexOf(vertices, start) == -1) {
-            System.out.println("Вершина не существует");
+            System.out.println("Вершина " + start + " не существует");
             return;
+
         }
         java.util.Set<V> visited = new java.util.HashSet<>();
-        System.out.print("DFS: ");
         dfsHelper(start, visited);
-        System.out.println();
+        System.out.println(); // просто перевод строки в конце
     }
 
     private void dfsHelper(V v, java.util.Set<V> visited) {
         visited.add(v);
-        System.out.print(v + " ");
+        System.out.print(v + " "); // только вершина и пробел
+
         int i = indexOf(vertices, v);
         MyArrayList<Edge<V>> edges = adj.get(i);
         for (int j = 0; j < edges.size(); j++) {
@@ -109,15 +110,20 @@ public class Graph<V> {
     }
 
     public void bfs(V start) {
-        if (indexOf(vertices, start) == -1) return;
+        if (indexOf(vertices, start) == -1) {
+            System.out.println("Вершина " + start + " не существует");
+            return;
+        }
         java.util.Set<V> visited = new java.util.HashSet<>();
         java.util.Queue<V> queue = new java.util.LinkedList<>();
+
         queue.add(start);
         visited.add(start);
-        System.out.print("BFS: ");
+
         while (!queue.isEmpty()) {
             V v = queue.poll();
             System.out.print(v + " ");
+
             int i = indexOf(vertices, v);
             MyArrayList<Edge<V>> edges = adj.get(i);
             for (int j = 0; j < edges.size(); j++) {
